@@ -18,12 +18,12 @@ async def get_rankings(session, limit):
         return json.loads(data)
     
 async def get_prices(session, symbols):
-    parameters = {
-    'symbols': ','.join(map(str, symbols))
-    }
-    async with session.get("http://pricing:8082", params=parameters) as response:
-        data = await response.text()
-        return json.loads(data)
+    # parameters = {
+    # 'symbols': ','.join(map(str, symbols))
+    # }
+    async with session.post("http://pricing:8082", json=symbols) as response:
+        response_data = await response.text()
+        return json.loads(response_data)
 
 async def generate_snapshot(limit):
     async with aiohttp.ClientSession() as session:
@@ -65,13 +65,19 @@ async def root(limit: int = 100, dt: datetime = None, format: str = 'json'):
 
     # query if data exists at timestamp
     # functions as psuedo cache
-    results_df = None
+    results_df = pl.DataFrame()
     async with sessionmanager.session() as session:
         records = await get_tokens_by_date(rounded_dt, session)
         records = [record.__dict__ for record in records]
         results_df = pl.from_records(records)
 
-    # no record exists in "cache" for given timestamp, if given at all
+        # If no timestamp was given, but existing result is smaller than requests
+        if do_it_live:
+            if limit > results_df.height:
+                # empty results to be overwritten
+                results_df = pl.DataFrame()
+
+    # no timestamp was given, and cache was unsatisfactory or non-existent
     if do_it_live and results_df.is_empty():
         results_df = await generate_snapshot(limit)
         async with sessionmanager.session() as session:

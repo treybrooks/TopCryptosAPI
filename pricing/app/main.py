@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 import json
+from typing import List
 import asyncio
 import aiohttp
 from  aiohttp import ClientConnectorError, ServerTimeoutError, TooManyRedirects
@@ -47,9 +48,9 @@ def chunk_list(l, size = 100):
     for i in range(0, len(l), size):
         yield l[i:i + size]
 
-async def get_pricing(symbols: list = None, sng_page_limit: int = 100):
+async def get_pricing(symbols: List[str] = None, sng_page_limit: int = 100):
     assert symbols is not None, "Must provide either list of symbols"
-    symbols = symbols.split(",")
+    # symbols = symbols.split(",")
     coin_ids = [COIN_MAP.get(symbol) for symbol in symbols if COIN_MAP.get(symbol)]
 
     if len(symbols) <= sng_page_limit:
@@ -101,6 +102,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-@app.get("/")
-async def root(symbols: str):
+@app.post("/")
+async def root(symbols: list):
     return await get_pricing(symbols)
