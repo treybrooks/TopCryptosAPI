@@ -11,9 +11,9 @@ from ..models import TokenInfo as TokenInfoModel
 router = APIRouter(prefix="/token", tags=["token"])
 
 class TokenSchemaBase(BaseModel):
-    Symbol: str | None = None
-    Rank: int | None = None
-    Price: float | None = None
+    symbol: str | None = None
+    rank: int | None = None
+    price: float | None = None
     created_at: datetime | None = None
 
 class TokenSchemaCreate(TokenSchemaBase):

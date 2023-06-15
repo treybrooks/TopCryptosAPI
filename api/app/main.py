@@ -30,22 +30,15 @@ async def generate_snapshot(limit):
     async with aiohttp.ClientSession() as session:
         # from cryptocompare API
         rankings_list = await get_rankings(session, limit)
-        df = pl.DataFrame(rankings_list).sort('Rank')
+        df = pl.DataFrame(rankings_list).sort('rank')
         
         # # from coinmarketcap API 
-        symbols = df['Symbol'].to_list()
+        symbols = df['symbol'].to_list()
         prices_dict = await get_prices(session, symbols)
         # Applys Price over Symbol Series, defaults to price from rankings if not availible
-        df = df.with_columns(pl.col('Symbol').map_dict(prices_dict, default=df['CC_Price']).alias('Price'))
+        df = df.with_columns(pl.col('symbol').map_dict(prices_dict, default=df['CC_Price']).alias('price'))
 
-    if limit:
-        # in case new limit is different than what was in the DB
-        df = df.limit(limit)
-
-    # Limit columns and reorder for more natural readability
-    df = df.select([pl.col('Rank'), pl.col('Symbol'), pl.col('Price')])
-
-    return df
+        return df
 
 def round_minutes(dt: datetime, resolutionInMinutes: int = 5):
     # stolen from: https://gist.github.com/cupdike/c5554233e1dd6b233a9b6ec6adb05c5a
@@ -90,9 +83,10 @@ async def root(limit: int = 100, dt: datetime = None, format: str = 'json'):
 
     if not df.is_empty():
         # get rid of unnessesary info and rename Price to match project spec
-        df = df.select(pl.col("Rank"), pl.col("Symbol"), pl.col("Price"))
-        df = df.rename({"Price": "Price USD"})
+        df = df.select(pl.col("rank"), pl.col("symbol"), pl.col("price"))
+        df = df.rename({"price": "price USD"})
 
+        # in case new limit is different than what was in the DB
         df = df.limit(limit)
 
         # output formatted to user request

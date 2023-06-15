@@ -10,9 +10,9 @@ from app.services.database import Base
 class TokenInfo(Base):
     __tablename__ = "TokenInfo"
     id = Column(String, primary_key=True)
-    Symbol = Column(String, nullable=False)
-    Rank = Column(Integer, nullable=False)
-    Price = Column(Float, nullable=True)
+    symbol = Column(String, nullable=False)
+    rank = Column(Integer, nullable=False)
+    price = Column(Float, nullable=True)
     created_at = Column(DateTime, nullable=False)
 
     @classmethod

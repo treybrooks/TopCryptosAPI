@@ -12,7 +12,7 @@ def init_app(init_db=True):
     lifespan = None
 
     if init_db:
-        sessionmanager.init(config.DB_CONFIG)
+        sessionmanager.init(config.DATABASE_URL)
 
         @asynccontextmanager
         async def lifespan(app: FastAPI):

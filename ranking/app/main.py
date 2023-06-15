@@ -14,7 +14,7 @@ default_currency = 'USD'
 
 def parse_data(datum):
     return {
-        "Symbol": datum.get("CoinInfo", {}).get("Name"),
+        "symbol": datum.get("CoinInfo", {}).get("Name"),
         "CC_Price": datum.get("RAW", {}).get("USD", {}).get("PRICE")
     }
 
@@ -66,7 +66,7 @@ async def get_rankings(limit_total=1000, sng_page_limit=100):
     # Format data here to minimize size for network transfer
     rank_data = []
     for rank, coin in enumerate(results):
-        coin['Rank'] = rank+1
+        coin['rank'] = rank+1
         rank_data.append(coin)
 
     return rank_data
