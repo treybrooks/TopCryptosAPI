@@ -5,7 +5,13 @@ from app.config import config
 from app.services.database import sessionmanager
 
 
-def init_app(init_db=True):
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    if sessionmanager._engine is not None:
+        await sessionmanager.close()
+
+def init_app(init_db: bool =True):
     # useful for testing
     # can create application without initializing the database connection
     # need custome db init for testing
@@ -13,12 +19,6 @@ def init_app(init_db=True):
 
     if init_db:
         sessionmanager.init(config.DATABASE_URL)
-
-        @asynccontextmanager
-        async def lifespan(app: FastAPI):
-            yield
-            if sessionmanager._engine is not None:
-                await sessionmanager.close()
 
     server = FastAPI(title="TopCrypto server", lifespan=lifespan)
 

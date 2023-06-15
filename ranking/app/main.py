@@ -43,17 +43,17 @@ async def get_ranking_page(limit = 100, page = 0):
     except (ClientConnectorError, ServerTimeoutError, TooManyRedirects) as e:
         print(e)
 
-async def get_rankings(limit_total=1000, sng_page_limit=100):
-    if limit_total <= sng_page_limit:
+async def get_rankings(limit_total=1000, single_page_limit=100):
+    if limit_total <= single_page_limit:
         # if pagination is not needed
         async_results = await get_ranking_page(limit_total)
         async_results = dict([async_results])
     else:
         # request pages async
         rank_tasks = []
-        for page in range(math.ceil(limit_total/sng_page_limit)):
+        for page in range(math.ceil(limit_total/single_page_limit)):
             rank_tasks.append(
-                asyncio.create_task(get_ranking_page(sng_page_limit, page))
+                asyncio.create_task(get_ranking_page(single_page_limit, page))
             )
         
         async_results = dict(await asyncio.gather(*rank_tasks))

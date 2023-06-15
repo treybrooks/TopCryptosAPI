@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 import json
-from contextlib import asynccontextmanager
 import aiohttp
 import polars as pl
 
@@ -66,34 +65,38 @@ async def root(limit: int = 100, dt: datetime = None, format: str = 'json'):
 
     # query if data exists at timestamp
     # functions as psuedo cache
-    df = None
+    results_df = None
     async with sessionmanager.session() as session:
         records = await get_tokens_by_date(rounded_dt, session)
         records = [record.__dict__ for record in records]
-        df = pl.from_records(records)
+        results_df = pl.from_records(records)
 
     # no record exists in "cache" for given timestamp, if given at all
-    if do_it_live and df.is_empty():
-        df = await generate_snapshot(limit)
+    if do_it_live and results_df.is_empty():
+        results_df = await generate_snapshot(limit)
         async with sessionmanager.session() as session:
-            for row in df.iter_rows(named=True):
+            for row in results_df.iter_rows(named=True):
                 row['created_at'] = rounded_dt
                 token_row = TokenSchemaCreate(**row)
                 await create_token(token_row, session)
 
-    if not df.is_empty():
+    if not results_df.is_empty():
         # get rid of unnessesary info and rename Price to match project spec
-        df = df.select(pl.col("rank"), pl.col("symbol"), pl.col("price"))
-        df = df.rename({"price": "price USD"})
+        results_df = results_df.select(pl.col("rank"), pl.col("symbol"), pl.col("price"))
+        results_df = results_df.rename({
+            "rank": "Rank",
+            "symbol": "Symbol",
+            "price": "Price USD"
+            })
 
         # in case new limit is different than what was in the DB
-        df = df.limit(limit)
+        results_df = results_df.limit(limit)
 
         # output formatted to user request
         if format.lower() == 'json':
-            return df.to_dicts()
+            return results_df.to_dicts()
         else:
-            return df.write_csv(separator=",")
+            return results_df.write_csv(separator=",")
     else:
         return {
             'message': f'No results found at {rounded_dt} limit {limit}'
