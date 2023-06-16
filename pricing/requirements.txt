@@ -8,6 +8,8 @@ charset-normalizer==3.1.0
 click==8.1.3
 fastapi==0.97.0
 frozenlist==1.3.3
+pytest==7.3.2
+pytest-asyncio>=0.20.3
 h11==0.14.0
 idna==3.4
 multidict==6.0.4
@@ -17,3 +19,4 @@ starlette==0.27.0
 typing_extensions==4.6.3
 uvicorn>=0.15.0,<0.16.0
 yarl==1.9.2
+httpx==0.24.1

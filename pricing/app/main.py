@@ -1,12 +1,11 @@
 import os
-from datetime import datetime
 import json
-from typing import List
+from typing import Annotated
 import asyncio
 import aiohttp
 from  aiohttp import ClientConnectorError, ServerTimeoutError, TooManyRedirects
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Path
 import logging
 
 
@@ -48,7 +47,7 @@ def chunk_list(l, size = 100):
     for i in range(0, len(l), size):
         yield l[i:i + size]
 
-async def get_pricing(symbols: List[str] = None, sng_page_limit: int = 100):
+async def get_pricing(symbols: list = None, sng_page_limit: int = 100):
     assert symbols is not None, "Must provide either list of symbols"
     # symbols = symbols.split(",")
     coin_ids = [COIN_MAP.get(symbol) for symbol in symbols if COIN_MAP.get(symbol)]
@@ -70,8 +69,6 @@ async def get_pricing(symbols: List[str] = None, sng_page_limit: int = 100):
 
     return async_results
 
-COIN_MAP = {}
-
 async def get_coinmarketcap_map():
     logging.info('Setting coin_map')
     
@@ -91,6 +88,7 @@ async def get_coinmarketcap_map():
     except (ClientConnectorError, ServerTimeoutError, TooManyRedirects) as e:
         print(e)
 
+COIN_MAP = {}
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Load Coin to ID map from coinmarketcap API before we start taking requests
@@ -103,5 +101,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 @app.post("/")
-async def root(symbols: list):
+async def root(
+    # symbols: Annotated[list[str], Path(title="List (possibly large) of Symbols")] = ['BTC']
+    symbols: list[str]
+    ):
     return await get_pricing(symbols)

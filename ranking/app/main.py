@@ -1,12 +1,12 @@
 import os
 import math
 import json
-from datetime import datetime
 import asyncio
+from typing import Annotated
 
 import aiohttp
 from  aiohttp import ClientConnectorError, ServerTimeoutError, TooManyRedirects
-from fastapi import FastAPI
+from fastapi import FastAPI, Path
 
 app = FastAPI()
 
@@ -18,7 +18,9 @@ def parse_data(datum):
         "CC_Price": datum.get("RAW", {}).get("USD", {}).get("PRICE")
     }
 
-async def get_ranking_page(limit = 100, page = 0):
+async def get_ranking_page(limit:int = 100, page:int = 0):
+    assert 0 < limit <= 100, "Limit must be between 0 - 100"
+    assert 0 <= page, "Must provide a possitive number for page"
     url = 'https://min-api.cryptocompare.com/data/top/totalvolfull'
     parameters = {
     'limit': str(limit),
@@ -39,6 +41,9 @@ async def get_ranking_page(limit = 100, page = 0):
                 if result['Data']:
                     parsed_data = [parse_data(datum) for datum in result['Data']]
                     return (page, parsed_data)
+                else:
+                    print(f"nothing found at page {page}")
+                    return (page, [])
 
     except (ClientConnectorError, ServerTimeoutError, TooManyRedirects) as e:
         print(e)
@@ -55,13 +60,14 @@ async def get_rankings(limit_total=1000, single_page_limit=100):
             rank_tasks.append(
                 asyncio.create_task(get_ranking_page(single_page_limit, page))
             )
-        
         async_results = dict(await asyncio.gather(*rank_tasks))
-
+        
     # take async results, and put them back in order
     results = []
     for i in range(len(async_results)):
         results += async_results[i]
+
+    print(f"Found {len(results)} results to rank given limit {limit_total}")
 
     # Format data here to minimize size for network transfer
     rank_data = []
@@ -72,5 +78,7 @@ async def get_rankings(limit_total=1000, single_page_limit=100):
     return rank_data
 
 @app.get("/")
-async def root(limit: int = 200, dt: datetime = None):
+async def root(
+    limit: Annotated[int, Path(title="Maximum total limit of returned tokens", ge=1, le=100)] = 5
+    ):
     return await get_rankings(limit_total = limit)
