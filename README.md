@@ -9,3 +9,8 @@
 4. feel free to `curl http://0.0.0.0:6667?limit=10&format=json` or use Postman if you like
 
 * You can also explore the API at `0.0.0.0:6667/docs` as we're using FastAPI
+
+
+## Inspirations
+* https://praciano.com.br/fastapi-and-async-sqlalchemy-20-with-pytest-done-right.html
+* https://ahmed-nafies.medium.com/fastapi-with-sqlalchemy-postgresql-and-alembic-and-of-course-docker-f2b7411ee396

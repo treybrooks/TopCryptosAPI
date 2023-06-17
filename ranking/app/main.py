@@ -2,7 +2,6 @@ import os
 import math
 import json
 import asyncio
-from typing import Annotated
 
 import aiohttp
 from  aiohttp import ClientConnectorError, ServerTimeoutError, TooManyRedirects
@@ -78,7 +77,5 @@ async def get_rankings(limit_total=1000, single_page_limit=100):
     return rank_data
 
 @app.get("/")
-async def root(
-    limit: Annotated[int, Path(title="Maximum total limit of returned tokens", ge=1, le=100)] = 5
-    ):
+async def root(limit: int = 5):
     return await get_rankings(limit_total = limit)

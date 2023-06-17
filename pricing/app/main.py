@@ -1,6 +1,5 @@
 import os
 import json
-from typing import Annotated
 import asyncio
 import aiohttp
 from  aiohttp import ClientConnectorError, ServerTimeoutError, TooManyRedirects
@@ -101,8 +100,5 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 @app.post("/")
-async def root(
-    # symbols: Annotated[list[str], Path(title="List (possibly large) of Symbols")] = ['BTC']
-    symbols: list[str]
-    ):
+async def root(symbols: list[str]):
     return await get_pricing(symbols)
