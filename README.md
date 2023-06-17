@@ -14,3 +14,7 @@
 * https://praciano.com.br/fastapi-and-async-sqlalchemy-20-with-pytest-done-right.html
 * https://ahmed-nafies.medium.com/fastapi-with-sqlalchemy-postgresql-and-alembic-and-of-course-docker-f2b7411ee396
 * https://medium.com/freestoneinfotech/simplifying-docker-compose-operations-using-makefile-26d451456d63
+
+## Future Improvements
+* Get smaller docker base images
+* Separate testing packages from "production"

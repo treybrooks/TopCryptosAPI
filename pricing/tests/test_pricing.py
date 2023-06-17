@@ -60,7 +60,7 @@ async def test_get_coinmarketcap_map():
         assert type(key) is str
         assert type(value) is int
 
-async def root():
+def test_root():
     symbols = ['BTC','ETH','LTC','XRP','UDST']
     results = client.post("/", json={'symbols': symbols})
     assert type(results) is dict
