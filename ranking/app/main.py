@@ -9,7 +9,7 @@ from fastapi import FastAPI, Path
 
 app = FastAPI()
 
-default_currency = 'USD'
+default_currency = os.getenv('DEFAULT_CURRENCY','USD')
 
 def parse_data(datum):
     return {
@@ -47,7 +47,8 @@ async def get_ranking_page(limit:int = 100, page:int = 0):
     except (ClientConnectorError, ServerTimeoutError, TooManyRedirects) as e:
         print(e)
 
-async def get_rankings(limit_total=1000, single_page_limit=100):
+@app.get("/")
+async def get_rankings(limit_total: int = 1000, single_page_limit: int = 100):
     if limit_total <= single_page_limit:
         # if pagination is not needed
         async_results = await get_ranking_page(limit_total)
@@ -73,7 +74,3 @@ async def get_rankings(limit_total=1000, single_page_limit=100):
         rank_data.append(coin)
 
     return rank_data
-
-@app.get("/")
-async def root(limit: int = 5):
-    return await get_rankings(limit_total = limit)

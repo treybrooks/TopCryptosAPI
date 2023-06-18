@@ -39,9 +39,7 @@ async def generate_snapshot(limit):
 
         # Applys Price over Symbol Series, defaults to price from rankings if not availible
         for token in rankings_list:
-            token['price'] = prices_dict[token['symbol']]
-            if token.get('price') is None:
-                token['price'] = token['CC_Price']
+            token['price'] = prices_dict.get(token['symbol'], token['CC_Price'])
             del token['CC_Price']
 
         return rankings_list

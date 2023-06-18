@@ -8,7 +8,7 @@ from fastapi import FastAPI, Path
 import logging
 
 
-default_currency = 'USD'
+default_currency = os.getenv('DEFAULT_CURRENCY','USD')
 
 def parse_pricing(data):
     pricing = {}
@@ -46,28 +46,6 @@ def chunk_list(l, size = 100):
     for i in range(0, len(l), size):
         yield l[i:i + size]
 
-async def get_pricing(symbols: list = None, sng_page_limit: int = 100):
-    assert symbols is not None, "Must provide either list of symbols"
-    # symbols = symbols.split(",")
-    coin_ids = [COIN_MAP.get(symbol) for symbol in symbols if COIN_MAP.get(symbol)]
-
-    if len(symbols) <= sng_page_limit:
-        # if pagination is not needed
-        async_results = await get_pricing_page(coin_ids)
-    else:
-        # request pages async
-        rank_tasks = []
-        for ids_chunk in chunk_list(coin_ids, sng_page_limit):
-            rank_tasks.append(
-                asyncio.create_task(get_pricing_page(ids_chunk))
-            )
-        
-        list_results = await asyncio.gather(*rank_tasks)
-        # Create Mapping dict of symbol to price
-        async_results = {k: v for d in list_results for k, v in d.items()}
-
-    return async_results
-
 async def get_coinmarketcap_map():
     logging.info('Setting coin_map')
     
@@ -100,5 +78,24 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 @app.post("/")
-async def root(symbols: list[str]):
-    return await get_pricing(symbols)
+async def get_pricing(symbols: list[str], sng_page_limit: int = 100):
+    assert symbols is not None, "Must provide either list of symbols"
+    # symbols = symbols.split(",")
+    coin_ids = [COIN_MAP.get(symbol) for symbol in symbols if COIN_MAP.get(symbol)]
+
+    if len(symbols) <= sng_page_limit:
+        # if pagination is not needed
+        async_results = await get_pricing_page(coin_ids)
+    else:
+        # request pages async
+        rank_tasks = []
+        for ids_chunk in chunk_list(coin_ids, sng_page_limit):
+            rank_tasks.append(
+                asyncio.create_task(get_pricing_page(ids_chunk))
+            )
+        
+        list_results = await asyncio.gather(*rank_tasks)
+        # Create Mapping dict of symbol to price
+        async_results = {k: v for d in list_results for k, v in d.items()}
+
+    return async_results
