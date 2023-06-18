@@ -66,8 +66,6 @@ async def get_rankings(limit_total=1000, single_page_limit=100):
     for i in range(len(async_results)):
         results += async_results[i]
 
-    print(f"Found {len(results)} results to rank given limit {limit_total}")
-
     # Format data here to minimize size for network transfer
     rank_data = []
     for rank, coin in enumerate(results):

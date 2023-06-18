@@ -1,6 +1,7 @@
 # Fortris Takehome Code Evaluation
 
 # Setup and Run
+!!! Correct the `.env.dev` file BEFORE trying to run docker
 1. Use the `.env.dev.example` to build an appropriate `.env.dev` file to connect to the DB
 2. Make sure those API keys are populated with the correct keys from the appropirate services
 3. Spin everything up: `make  up`
