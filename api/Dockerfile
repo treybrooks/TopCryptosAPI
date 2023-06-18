@@ -1,6 +1,12 @@
-FROM python:3.11
+FROM python:3.11-alpine
 
 WORKDIR /code
+
+RUN apk update && apk upgrade
+RUN apk add --no-cache gcc \
+                       build-base \
+                       linux-headers \
+    && rm -rf /var/cache/apk/*
 
 COPY ./requirements.txt /code/requirements.txt
 RUN pip install -r /code/requirements.txt
