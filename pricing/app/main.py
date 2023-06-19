@@ -10,6 +10,12 @@ import logging
 
 default_currency = os.getenv('DEFAULT_CURRENCY','USD')
 
+def chunk_list(to_chunk, size = 100):
+    # utility function for pagination of lists
+    # looping till length size
+    for i in range(0, len(to_chunk), size):
+        yield to_chunk[i:i + size]
+
 def parse_pricing(data):
     pricing = {}
     for value in data.values():
@@ -27,24 +33,15 @@ async def get_pricing_page(ids: list = None):
         'X-CMC_PRO_API_KEY': os.getenv('COINMARKETCAP_KEY'),
     }    
 
-    try:
-        async with aiohttp.ClientSession() as session:
-            session.headers.update(headers)
-            async with session.get(url, params=parameters) as response:
-                if response.status == 200:
-                    result = json.loads(await response.text())
-                    return parse_pricing(result['data'])
-                else:
-                    print(response.status, await response.text())
-                    return {}
-
-    except (ClientConnectorError, ServerTimeoutError, TooManyRedirects) as e:
-        print(e)
-    
-def chunk_list(l, size = 100):
-    # looping till length size
-    for i in range(0, len(l), size):
-        yield l[i:i + size]
+    async with aiohttp.ClientSession() as session:
+        session.headers.update(headers)
+        async with session.get(url, params=parameters) as response:
+            if response.status == 200:
+                result = json.loads(await response.text())
+                return parse_pricing(result['data'])
+            else:
+                print(response.status, await response.text())
+                return {}
 
 async def get_coinmarketcap_map():
     logging.info('Setting coin_map')
@@ -55,15 +52,11 @@ async def get_coinmarketcap_map():
     'X-CMC_PRO_API_KEY': os.getenv('COINMARKETCAP_KEY'),
     }
 
-    try:
-        async with aiohttp.ClientSession() as session:
-            session.headers.update(headers)
-            async with session.get(url) as response:
-                data = await response.text()
-                data_json = json.loads(data)
-                return {coin['symbol']: coin['id'] for coin in data_json['data']}
-    except (ClientConnectorError, ServerTimeoutError, TooManyRedirects) as e:
-        print(e)
+    async with aiohttp.ClientSession() as session:
+        session.headers.update(headers)
+        async with session.get(url) as response:
+            data_json = json.loads(await response.text())
+            return {coin['symbol']: coin['id'] for coin in data_json['data']}
 
 COIN_MAP = {}
 @asynccontextmanager
