@@ -1,0 +1,52 @@
+[
+    {
+        "rank": 1,
+        "symbol": "BTC",
+        "price": 26450.844793831235
+    },
+    {
+        "rank": 2,
+        "symbol": "ETH",
+        "price": 1726.215674716125
+    },
+    {
+        "rank": 3,
+        "symbol": "XRP",
+        "price": 0.48912595613752335
+    },
+    {
+        "rank": 4,
+        "symbol": "USDT",
+        "price": 1.0000856401505112
+    },
+    {
+        "rank": 5,
+        "symbol": "USDC",
+        "price": 1.000252093658327
+    },
+    {
+        "rank": 6,
+        "symbol": "BUSD",
+        "price": 0.9999342733528607
+    },
+    {
+        "rank": 7,
+        "symbol": "BNB",
+        "price": 243.13024053783258
+    },
+    {
+        "rank": 8,
+        "symbol": "TUSD",
+        "price": 1.0026576269284981
+    },
+    {
+        "rank": 9,
+        "symbol": "DOGE",
+        "price": 0.06193394206454034
+    },
+    {
+        "rank": 10,
+        "symbol": "SHIB",
+        "price": 7.146007776424837e-06
+    }
+]

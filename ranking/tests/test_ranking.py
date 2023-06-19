@@ -59,7 +59,7 @@ async def test_get_rankings(mocker):
     resp = MockResponse(json.dumps(mocked_data), 200)
     mocker.return_value.__aenter__.return_value = resp
 
-    response = await get_rankings(limit_total=10)
+    response = await get_rankings(limit=10)
     assert isinstance(response, Sequence)
     print(response)
     assert len(response) == 10

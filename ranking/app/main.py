@@ -48,15 +48,15 @@ async def call_cryptocompare(limit:int = 100, page:int = 0):
                 return {}
 
 @app.get("/")
-async def get_rankings(limit_total: int = 1000, single_page_limit: int = 100):
-    if limit_total <= single_page_limit:
+async def get_rankings(limit: int = 1000, single_page_limit: int = 100):
+    if limit <= single_page_limit:
         # if pagination is not needed
-        async_results = await get_numbered_ranking_page(limit_total)
+        async_results = await get_numbered_ranking_page(limit)
         async_results = dict([async_results])
     else:
         # request pages async
         rank_tasks = []
-        for page in range(math.ceil(limit_total/single_page_limit)):
+        for page in range(math.ceil(limit/single_page_limit)):
             rank_tasks.append(
                 asyncio.create_task(get_numbered_ranking_page(single_page_limit, page))
             )

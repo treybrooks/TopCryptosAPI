@@ -71,9 +71,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 @app.post("/")
-async def get_pricing(symbols: list[str], sng_page_limit: int = 100):
-    assert symbols is not None, "Must provide either list of symbols"
-    # symbols = symbols.split(",")
+async def get_pricing(symbols: list[str] = [], sng_page_limit: int = 100):
     coin_ids = [COIN_MAP.get(symbol) for symbol in symbols if COIN_MAP.get(symbol)]
 
     if len(symbols) <= sng_page_limit:

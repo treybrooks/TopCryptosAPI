@@ -19,8 +19,8 @@ async def get_rankings(session, limit):
     'limit': str(limit)
     }
     async with session.get("http://ranking:8081", params=parameters) as response:
-        data = await response.text()
-        return json.loads(data)
+        response_data = await response.text()
+        return json.loads(response_data)
     
 async def get_prices(session, symbols):
     async with session.post("http://pricing:8082", json=symbols) as response:
