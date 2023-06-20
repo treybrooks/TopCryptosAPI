@@ -46,6 +46,7 @@ This project ties two external APIs together for a priced 24h volume ranked list
   * An endpoint to list available historical statistics is in the future road-map.
 * A 5 minute pseudo-cache is acceptable
 * Two or more calls within the 5 minute cache window that require a higher limit than previously stored in that time window will overwrite previous prices
+* Price: If price is unavailable from `coinmarketcap` api, the price provided by `cryptocompare` will be used.
 
 ## Architecture design and implementation
 In respect to building a service oriented architecture (SOA) project, Ranking (`:8081`) and Pricing (`:8082`) services can be called independently from the frontend API as they use FastAPI themselves. The database only communicates with the frontend to minimize coupling of services and ease of data modeling. The Frontend API (`:6667`) waits for all results from the ranking service before calling the pricing service to reduce unnecessary API credit use and ensure only the requested crypto tickers are returned. 
