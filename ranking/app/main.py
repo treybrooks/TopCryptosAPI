@@ -2,6 +2,7 @@ import os
 import math
 import json
 import asyncio
+from operator import itemgetter
 
 import aiohttp
 from  aiohttp import ClientConnectorError, ServerTimeoutError, TooManyRedirects
@@ -52,7 +53,7 @@ async def get_rankings(limit: int = 1000, single_page_limit: int = 100):
     if limit <= single_page_limit:
         # if pagination is not needed
         async_results = await get_numbered_ranking_page(limit)
-        async_results = dict([async_results])
+        async_results = [async_results]
     else:
         # request pages async
         rank_tasks = []
@@ -60,17 +61,13 @@ async def get_rankings(limit: int = 1000, single_page_limit: int = 100):
             rank_tasks.append(
                 asyncio.create_task(get_numbered_ranking_page(single_page_limit, page))
             )
-        async_results = dict(await asyncio.gather(*rank_tasks))
+        async_results = await asyncio.gather(*rank_tasks)
         
-    # take async results, and put them back in order
-    results = []
-    for i in range(len(async_results)):
-        results += async_results[i]
-
-    # Format data here to minimize size for network transfer
     rank_data = []
-    for rank, coin in enumerate(results):
-        coin['rank'] = rank+1
-        rank_data.append(coin)
+    for page_results in async_results:
+        page, page_rankings = page_results
+        for rank, coin in enumerate(page_rankings):
+            coin['rank'] = page*single_page_limit + (rank+1)
+            rank_data.append(coin)
 
-    return rank_data
+    return sorted(rank_data, key=itemgetter('rank'))
