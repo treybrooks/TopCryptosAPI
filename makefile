@@ -1,12 +1,13 @@
 build:
 	docker-compose -f docker-compose.yml build $(c)
 up:
-	docker-compose -f docker-compose.yml up $(c)
+	docker-compose -f docker-compose.yml up -d $(c)
 down:
 	docker-compose -f docker-compose.yml down $(c)
 logs:
 	docker-compose -f docker-compose.yml logs --tail=100 -f $(c)
 test:
+	docker-compose -f docker-compose.yml up -d
 	docker-compose -f docker-compose.yml exec ranking python -m pytest	
 	docker-compose -f docker-compose.yml exec pricing python -m pytest
 	docker-compose -f docker-compose.yml exec api python -m pytest

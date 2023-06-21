@@ -61,7 +61,6 @@ async def test_get_rankings(mocker):
 
     response = await get_rankings(limit=10)
     assert isinstance(response, Sequence)
-    print(response)
     assert len(response) == 10
     for res in response:
         assert type(res['rank']) == type(1)

@@ -9,7 +9,7 @@ from fastapi import FastAPI, Path
 import logging
 
 
-# allow for 10 concurrent entries within a 2 second window
+# allow for 30 concurrent entries within a 60 second window
 rate_limit = AsyncLimiter(30, 60)
 
 default_currency = os.getenv('DEFAULT_CURRENCY','USD')

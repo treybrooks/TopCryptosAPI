@@ -11,7 +11,7 @@ from fastapi.responses import StreamingResponse
 
 from .services.database import sessionmanager
 from .models import TokenInfo
-from .views.tokeninfo import create_token, TokenSchemaCreate, get_tokens_by_date
+from .views.tokeninfo import create_token, get_tokens_by_date, delete_timestamp, TokenSchemaCreate
 
 
 async def get_rankings(session, limit):
@@ -71,19 +71,21 @@ async def root(limit: int = 100, dt: datetime = None, format: str = 'json'):
     # query if data exists at timestamp
     # functions as psuedo cache
     async with sessionmanager.session() as session:
-        records = await get_tokens_by_date(rounded_dt, session)
-        records = [record.__dict__ for record in records]
+        token_records = await get_tokens_by_date(rounded_dt, session)
 
         # If no timestamp was given, but existing result is smaller than requests
         if do_it_live:
-            if limit > len(records):
-                # empty results to be overwritten
+            if limit > len(token_records):
+                # delete existing results
+                await delete_timestamp(rounded_dt, session)
                 records = []
+            else:
+                records = [record.__dict__ for record in token_records]
 
-    # no timestamp was given, and cache was unsatisfactory or non-existent
-    if do_it_live and len(records) == 0:
-        records = await generate_snapshot(limit)
-        async with sessionmanager.session() as session:
+        # no timestamp was given, and cache was unsatisfactory or non-existent
+        if do_it_live and len(records) == 0:
+            records = await generate_snapshot(limit)
+            # async with sessionmanager.session() as session:
             for row in records:
                 row['created_at'] = rounded_dt
                 token_row = TokenSchemaCreate(**row)

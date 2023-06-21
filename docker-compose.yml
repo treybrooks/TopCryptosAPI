@@ -9,6 +9,8 @@ services:
     user: postgres
     expose:
       - 5432
+    ports:
+      - "6432:5432"
     env_file:
       - ./.env.dev
     healthcheck:
