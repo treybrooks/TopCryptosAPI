@@ -44,16 +44,5 @@ services:
     env_file:
       - ./.env.dev
 
-  test_postgres:
-    image: postgres:15-alpine
-    container_name: test_postgres
-    user: postgres
-    expose:
-      - 6432
-    ports:
-      - "6432:5432"
-    env_file:
-      - ./.env.dev
-
 volumes:
   postgres_data:
