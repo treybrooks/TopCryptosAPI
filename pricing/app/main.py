@@ -3,10 +3,14 @@ import json
 import asyncio
 import aiohttp
 from  aiohttp import ClientConnectorError, ServerTimeoutError, TooManyRedirects
+from aiolimiter import AsyncLimiter
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Path
 import logging
 
+
+# allow for 10 concurrent entries within a 2 second window
+rate_limit = AsyncLimiter(30, 60)
 
 default_currency = os.getenv('DEFAULT_CURRENCY','USD')
 
@@ -71,7 +75,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 @app.post("/")
-async def get_pricing(symbols: list[str] = [], sng_page_limit: int = 100):
+async def get_pricing(symbols: list[str] = [], sng_page_limit: int = 500):
     coin_ids = [COIN_MAP.get(symbol) for symbol in symbols if COIN_MAP.get(symbol)]
 
     if len(symbols) <= sng_page_limit:

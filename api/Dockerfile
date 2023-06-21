@@ -4,8 +4,9 @@ WORKDIR /code
 
 RUN apk update && apk upgrade
 RUN apk add --no-cache gcc \
-                       build-base \
+                       libpq-dev build-base \
                        linux-headers \
+                       postgresql postgresql-dev python3-dev musl-dev \
     && rm -rf /var/cache/apk/*
 
 COPY ./requirements.txt /code/requirements.txt
